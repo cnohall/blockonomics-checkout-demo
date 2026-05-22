@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-stone-950 text-stone-100 min-h-screen antialiased">
+      <body className="min-h-screen antialiased">
         <Script
           src="https://blockonomics.co/js/web3-payment.js"
           strategy="beforeInteractive"

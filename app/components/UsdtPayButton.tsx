@@ -28,20 +28,40 @@ export default function UsdtPayButton({ address, amount, testmode }: Props) {
   if (txhash) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-2 bg-blue-950 border border-blue-900 rounded-lg px-4 py-3">
-          <svg className="animate-spin w-4 h-4 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+        <div
+          className="flex items-center gap-2 rounded-lg px-4 py-3"
+          style={{
+            backgroundColor: "var(--info-bg)",
+            border: "1px solid var(--info-border)",
+          }}
+        >
+          <svg
+            className="animate-spin w-4 h-4 flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            style={{ color: "var(--info-text)" }}
+          >
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
-          <span className="text-blue-300 text-sm">Waiting for confirmation…</span>
+          <span className="text-sm" style={{ color: "var(--info-text)" }}>
+            Waiting for confirmation…
+          </span>
         </div>
         <div>
-          <p className="text-stone-500 text-xs uppercase tracking-wide mb-1.5">Transaction</p>
+          <p className="text-xs uppercase tracking-wide mb-1.5" style={{ color: "var(--text-3)" }}>
+            Transaction
+          </p>
           <a
             href={`${explorerBase}/${txhash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block bg-stone-800 border border-stone-700 hover:border-amber-700 rounded-lg px-3 py-2 text-xs text-amber-500 font-mono break-all transition-colors"
+            className="block rounded-lg px-3 py-2 text-xs font-mono break-all transition-colors"
+            style={{
+              backgroundColor: "var(--surface-2)",
+              border: "1px solid var(--border)",
+              color: "var(--accent)",
+            }}
           >
             {txhash.slice(0, 10)}…{txhash.slice(-8)}
           </a>
