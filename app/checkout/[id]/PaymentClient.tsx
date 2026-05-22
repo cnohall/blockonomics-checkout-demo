@@ -332,7 +332,7 @@ export default function PaymentClient({
                   </div>
                 )}
 
-                {expired && (
+                {expired && quote.status === "pending" && (
                   <div
                     className="flex items-center justify-between rounded-lg px-4 py-2.5"
                     style={{
