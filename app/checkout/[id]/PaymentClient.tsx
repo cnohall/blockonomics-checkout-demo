@@ -76,21 +76,36 @@ export default function PaymentClient({
   initialIntent: PaymentIntent;
 }) {
   const [intent, setIntent] = useState<PaymentIntent>(initialIntent);
-  const [quote, setQuote] = useState<PaymentQuote | null>(
-    initialIntent.payment_quotes?.[0] ?? null
-  );
+  const initialQuote = initialIntent.payment_quotes?.[0] ?? null;
+  const [quote, setQuote] = useState<PaymentQuote | null>(initialQuote);
   const [selectedCrypto, setSelectedCrypto] = useState<"BTC" | "USDT">("BTC");
   const [loadingQuote, setLoadingQuote] = useState(false);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
-  const [expired, setExpired] = useState(false);
+  // if page was refreshed mid-session the seeded quote has no expires_in — treat as expired
+  const [expired, setExpired] = useState(initialQuote !== null && initialQuote.expires_in === undefined);
   const [copied, setCopied] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
+  const quoteRef = useRef(quote);
+  quoteRef.current = quote;
 
   const pollIntent = useCallback(async () => {
     try {
       const res = await fetch(`/api/payment-intents/${intent.id}`);
+      if (!res.ok) return;
       const data: PaymentIntent = await res.json();
       setIntent(data);
+      // sync txid/status/paid_amount into active quote from poll
+      const active = quoteRef.current;
+      if (active && data.payment_quotes) {
+        const updated = data.payment_quotes.find((q) => q.id === active.id);
+        if (updated) {
+          setQuote((prev) =>
+            prev
+              ? { ...prev, txid: updated.txid, status: updated.status, paid_amount: updated.paid_amount }
+              : prev
+          );
+        }
+      }
     } catch {
       // silently ignore poll errors
     }
@@ -148,12 +163,16 @@ export default function PaymentClient({
 
   async function copyAddress() {
     if (!quote?.address) return;
-    await navigator.clipboard.writeText(quote.address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(quote.address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable (insecure origin)
+    }
   }
 
-  const cryptos = initialIntent.store_settings?.active_cryptos ?? ["BTC", "USDT"];
+  const cryptos = intent.store_settings?.active_cryptos ?? ["BTC", "USDT"];
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
@@ -277,11 +296,11 @@ export default function PaymentClient({
                 )}
 
                 {/* TXID on processing */}
-                {intent.status === "processing" && intent.payment_quotes?.[0]?.txid && (
+                {intent.status === "processing" && quote?.txid && (
                   <div>
                     <p className="text-gray-400 text-xs mb-1">Transaction ID</p>
                     <code className="block bg-gray-800 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono break-all">
-                      {intent.payment_quotes[0].txid}
+                      {quote.txid}
                     </code>
                   </div>
                 )}

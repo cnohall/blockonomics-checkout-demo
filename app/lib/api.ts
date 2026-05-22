@@ -1,7 +1,11 @@
 import type { PaymentIntent, PaymentQuote } from "./types";
 
-const BASE_URL = process.env.BLOCKONOMICS_API_URL!;
-const API_KEY = process.env.BLOCKONOMICS_API_KEY!;
+const BASE_URL = process.env.BLOCKONOMICS_API_URL;
+const API_KEY = process.env.BLOCKONOMICS_API_KEY;
+
+if (!BASE_URL || !API_KEY) {
+  throw new Error("Missing BLOCKONOMICS_API_URL or BLOCKONOMICS_API_KEY env vars");
+}
 
 function headers() {
   return {
@@ -66,7 +70,7 @@ export async function refreshPaymentQuote(
     `${BASE_URL}/api/v2/payment_intents/${intentId}/payment_quotes/${quoteId}/refresh`,
     {
       method: "POST",
-      headers: headers(),
+      headers: { Authorization: `Bearer ${API_KEY}` },
       cache: "no-store",
     }
   );
