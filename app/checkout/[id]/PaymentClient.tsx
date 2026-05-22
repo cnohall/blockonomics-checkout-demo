@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { PaymentIntent, PaymentQuote } from "@/app/lib/types";
+import UsdtPayButton from "@/app/components/UsdtPayButton";
 
 function formatCrypto(quote: PaymentQuote): string {
   if (quote.crypto === "BTC") {
@@ -16,45 +17,34 @@ function formatUsd(cents: number): string {
 
 function StatusBadge({ status }: { status: PaymentIntent["status"] }) {
   const styles: Record<PaymentIntent["status"], string> = {
-    unpaid: "bg-yellow-900 text-yellow-300 border-yellow-700",
-    processing: "bg-blue-900 text-blue-300 border-blue-700",
-    paid: "bg-green-900 text-green-300 border-green-700",
-    underpaid: "bg-red-900 text-red-300 border-red-700",
+    unpaid:     "bg-amber-950 text-amber-400 border-amber-800",
+    processing: "bg-blue-950 text-blue-400 border-blue-800",
+    paid:       "bg-emerald-950 text-emerald-400 border-emerald-800",
+    underpaid:  "bg-red-950 text-red-400 border-red-800",
   };
   const labels: Record<PaymentIntent["status"], string> = {
-    unpaid: "Awaiting payment",
-    processing: "Processing",
-    paid: "Paid",
-    underpaid: "Underpaid",
+    unpaid:     "Awaiting payment",
+    processing: "Confirming",
+    paid:       "Paid",
+    underpaid:  "Underpaid",
   };
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-medium ${styles[status]}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${styles[status]}`}>
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {labels[status]}
     </span>
   );
 }
 
-function Countdown({
-  seconds,
-  onExpire,
-}: {
-  seconds: number;
-  onExpire: () => void;
-}) {
+function Countdown({ seconds, onExpire }: { seconds: number; onExpire: () => void }) {
   const [remaining, setRemaining] = useState(seconds);
   const expireRef = useRef(onExpire);
   expireRef.current = onExpire;
 
-  useEffect(() => {
-    setRemaining(seconds);
-  }, [seconds]);
+  useEffect(() => { setRemaining(seconds); }, [seconds]);
 
   useEffect(() => {
-    if (remaining <= 0) {
-      expireRef.current();
-      return;
-    }
+    if (remaining <= 0) { expireRef.current(); return; }
     const t = setTimeout(() => setRemaining((r) => r - 1), 1000);
     return () => clearTimeout(t);
   }, [remaining]);
@@ -64,7 +54,7 @@ function Countdown({
   const isLow = remaining < 60;
 
   return (
-    <span className={`font-mono font-bold text-lg ${isLow ? "text-red-400" : "text-white"}`}>
+    <span className={`font-mono font-bold ${isLow ? "text-red-400" : "text-stone-200"}`}>
       {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
     </span>
   );
@@ -72,8 +62,10 @@ function Countdown({
 
 export default function PaymentClient({
   initialIntent,
+  testmode,
 }: {
   initialIntent: PaymentIntent;
+  testmode: boolean;
 }) {
   const [intent, setIntent] = useState<PaymentIntent>(initialIntent);
   const initialQuote = initialIntent.payment_quotes?.[0] ?? null;
@@ -81,7 +73,6 @@ export default function PaymentClient({
   const [selectedCrypto, setSelectedCrypto] = useState<"BTC" | "USDT">("BTC");
   const [loadingQuote, setLoadingQuote] = useState(false);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
-  // if page was refreshed mid-session the seeded quote has no expires_in — treat as expired
   const [expired, setExpired] = useState(initialQuote !== null && initialQuote.expires_in === undefined);
   const [copied, setCopied] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
@@ -94,15 +85,12 @@ export default function PaymentClient({
       if (!res.ok) return;
       const data: PaymentIntent = await res.json();
       setIntent(data);
-      // sync txid/status/paid_amount into active quote from poll
       const active = quoteRef.current;
       if (active && data.payment_quotes) {
         const updated = data.payment_quotes.find((q) => q.id === active.id);
         if (updated) {
           setQuote((prev) =>
-            prev
-              ? { ...prev, txid: updated.txid, status: updated.status, paid_amount: updated.paid_amount }
-              : prev
+            prev ? { ...prev, txid: updated.txid, status: updated.status, paid_amount: updated.paid_amount } : prev
           );
         }
       }
@@ -175,20 +163,27 @@ export default function PaymentClient({
   const cryptos = intent.store_settings?.active_cryptos ?? ["BTC", "USDT"];
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen bg-stone-950 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md">
+
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-gray-400 text-sm">Payment</p>
-            <p className="text-2xl font-bold text-white">{formatUsd(intent.amount)}</p>
+        <div className="flex items-center gap-3 mb-6">
+          <a href="/" className="text-stone-500 hover:text-stone-300 transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </a>
+          <div className="flex-1">
+            <p className="text-stone-500 text-xs">Daily Grind · Order #4821</p>
+            <p className="text-stone-100 font-semibold">{formatUsd(intent.amount)}</p>
           </div>
           <StatusBadge status={intent.status} />
         </div>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
-          {/* Crypto selector */}
-          <div className="flex border-b border-gray-800">
+        <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
+
+          {/* Crypto tabs */}
+          <div className="flex border-b border-stone-800">
             {(["BTC", "USDT"] as const)
               .filter((c) => cryptos.includes(c))
               .map((c) => (
@@ -196,30 +191,31 @@ export default function PaymentClient({
                   key={c}
                   onClick={() => handleCryptoChange(c)}
                   disabled={loadingQuote}
-                  className={`flex-1 py-3.5 text-sm font-semibold transition-colors ${
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     selectedCrypto === c
-                      ? "bg-gray-800 text-orange-400 border-b-2 border-orange-500"
-                      : "text-gray-500 hover:text-gray-300"
+                      ? "text-amber-400 border-b-2 border-amber-600 bg-stone-800/60"
+                      : "text-stone-500 hover:text-stone-300"
                   }`}
                 >
-                  {c === "BTC" ? "₿ Bitcoin" : "₮ Tether"}
+                  {c === "BTC" ? "Bitcoin" : "Tether USDT"}
                 </button>
               ))}
           </div>
 
-          <div className="p-6 space-y-5">
+          <div className="p-5 space-y-4">
+
             {!quote && !loadingQuote && (
               <button
                 onClick={() => requestQuote(selectedCrypto)}
-                className="w-full bg-orange-500 hover:bg-orange-400 text-white font-semibold py-3 rounded-lg transition-colors"
+                className="w-full bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold py-3 rounded-xl transition-colors text-sm"
               >
-                Get Payment Address
+                Get payment address
               </button>
             )}
 
             {loadingQuote && (
-              <div className="flex items-center justify-center py-6 text-gray-400 gap-2">
-                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+              <div className="flex items-center justify-center py-8 text-stone-500 gap-2 text-sm">
+                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
@@ -228,38 +224,38 @@ export default function PaymentClient({
             )}
 
             {quoteError && (
-              <div className="bg-red-950 border border-red-800 rounded-lg px-4 py-3 text-red-400 text-sm">
+              <div className="bg-red-950 border border-red-900 rounded-lg px-3 py-2.5 text-red-400 text-xs font-mono break-all">
                 {quoteError}
               </div>
             )}
 
             {quote && !loadingQuote && (
               <>
-                {/* Amount */}
-                <div className="bg-gray-800 rounded-xl px-5 py-4 text-center">
-                  <p className="text-gray-400 text-xs mb-1">Send exactly</p>
-                  <p className="text-2xl font-bold text-white">{formatCrypto(quote)}</p>
+                {/* Amount box */}
+                <div className="bg-stone-800 rounded-xl px-4 py-4 text-center">
+                  <p className="text-stone-500 text-xs mb-1 uppercase tracking-wide">Send exactly</p>
+                  <p className="text-2xl font-bold text-stone-100 tracking-tight">{formatCrypto(quote)}</p>
                   {intent.status === "underpaid" && (
-                    <p className="text-red-400 text-xs mt-1">
-                      Received {formatCrypto({ ...quote, amount: quote.paid_amount })} — underpaid
+                    <p className="text-red-400 text-xs mt-1.5">
+                      Received {formatCrypto({ ...quote, amount: quote.paid_amount })} — amount short
                     </p>
                   )}
                 </div>
 
                 {/* Address */}
                 <div>
-                  <p className="text-gray-400 text-xs mb-2">Address</p>
+                  <p className="text-stone-500 text-xs uppercase tracking-wide mb-1.5">Address</p>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-gray-800 rounded-lg px-3 py-2.5 text-xs text-gray-300 break-all font-mono">
+                    <code className="flex-1 bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-400 break-all font-mono leading-relaxed">
                       {quote.address}
                     </code>
                     <button
                       onClick={copyAddress}
-                      className="flex-shrink-0 p-2.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors"
+                      className="flex-shrink-0 p-2.5 bg-stone-800 border border-stone-700 hover:border-amber-700 rounded-lg text-stone-400 hover:text-amber-400 transition-colors"
                       title="Copy address"
                     >
                       {copied ? (
-                        <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
@@ -271,49 +267,57 @@ export default function PaymentClient({
                   </div>
                 </div>
 
+                {/* USDT web3 pay button */}
+                {selectedCrypto === "USDT" && intent.status !== "paid" && (
+                  <UsdtPayButton
+                    address={quote.address}
+                    amount={quote.amount}
+                    testmode={testmode}
+                  />
+                )}
+
                 {/* Timer */}
                 {quote.expires_in !== undefined && !expired && (
-                  <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3">
-                    <span className="text-gray-400 text-sm">Quote expires in</span>
-                    <Countdown
-                      seconds={quote.expires_in}
-                      onExpire={() => setExpired(true)}
-                    />
+                  <div className="flex items-center justify-between bg-stone-800 rounded-lg px-4 py-2.5">
+                    <span className="text-stone-500 text-sm">Rate expires</span>
+                    <Countdown seconds={quote.expires_in} onExpire={() => setExpired(true)} />
                   </div>
                 )}
 
                 {expired && (
-                  <div className="flex items-center justify-between bg-red-950 border border-red-800 rounded-lg px-4 py-3">
-                    <span className="text-red-400 text-sm">Quote expired — refresh for new rate</span>
+                  <div className="flex items-center justify-between bg-red-950 border border-red-900 rounded-lg px-4 py-2.5">
+                    <span className="text-red-400 text-sm">Rate expired</span>
                     <button
                       onClick={handleRefresh}
                       disabled={loadingRefresh}
-                      className="text-orange-400 hover:text-orange-300 text-sm font-semibold disabled:opacity-50 transition-colors"
+                      className="text-amber-500 hover:text-amber-400 text-sm font-semibold disabled:opacity-50 transition-colors"
                     >
-                      {loadingRefresh ? "Refreshing…" : "Refresh"}
+                      {loadingRefresh ? "Refreshing…" : "Refresh rate"}
                     </button>
                   </div>
                 )}
 
-                {/* TXID on processing */}
+                {/* TXID */}
                 {intent.status === "processing" && quote?.txid && (
                   <div>
-                    <p className="text-gray-400 text-xs mb-1">Transaction ID</p>
-                    <code className="block bg-gray-800 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono break-all">
+                    <p className="text-stone-500 text-xs uppercase tracking-wide mb-1.5">Transaction</p>
+                    <code className="block bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-400 font-mono break-all">
                       {quote.txid}
                     </code>
                   </div>
                 )}
 
-                {/* Paid state */}
+                {/* Paid */}
                 {intent.status === "paid" && (
-                  <div className="flex items-center gap-3 bg-green-950 border border-green-800 rounded-xl px-5 py-4">
-                    <svg className="w-6 h-6 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <div className="flex items-center gap-3 bg-emerald-950 border border-emerald-900 rounded-xl px-4 py-4">
+                    <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
                     <div>
-                      <p className="text-green-300 font-semibold">Payment confirmed</p>
-                      <p className="text-green-500 text-xs">{formatUsd(intent.paid_amount)} received</p>
+                      <p className="text-emerald-300 font-semibold text-sm">Payment confirmed</p>
+                      <p className="text-emerald-600 text-xs">{formatUsd(intent.paid_amount)} received · Thank you!</p>
                     </div>
                   </div>
                 )}
@@ -322,13 +326,11 @@ export default function PaymentClient({
           </div>
         </div>
 
-        {/* Footer meta */}
-        <div className="mt-4 flex items-center justify-between text-xs text-gray-600">
-          <span>Intent ID: <code className="font-mono">{intent.id}</code></span>
+        {/* Footer */}
+        <div className="mt-4 flex items-center justify-between text-xs text-stone-700">
+          <span className="font-mono">{intent.id}</span>
           {initialIntent.store_settings?.testmode && (
-            <span className="bg-yellow-900 text-yellow-500 border border-yellow-700 px-2 py-0.5 rounded-full">
-              Testmode
-            </span>
+            <span className="text-amber-700 border border-amber-900 px-2 py-0.5 rounded-full">testmode</span>
           )}
         </div>
       </div>

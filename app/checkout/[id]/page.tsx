@@ -16,5 +16,7 @@ export default async function CheckoutPage({ params }: Props) {
     notFound();
   }
 
-  return <PaymentClient initialIntent={intent} />;
+  const testmode = intent.store_settings?.testmode ?? false;
+
+  return <PaymentClient initialIntent={intent} testmode={testmode} />;
 }

@@ -2,9 +2,10 @@ import type { PaymentIntent, PaymentQuote } from "./types";
 
 const BASE_URL = process.env.BLOCKONOMICS_API_URL;
 const API_KEY = process.env.BLOCKONOMICS_API_KEY;
+const MATCH_CALLBACK = process.env.BLOCKONOMICS_MATCH_CALLBACK;
 
-if (!BASE_URL || !API_KEY) {
-  throw new Error("Missing BLOCKONOMICS_API_URL or BLOCKONOMICS_API_KEY env vars");
+if (!BASE_URL || !API_KEY || !MATCH_CALLBACK) {
+  throw new Error("Missing BLOCKONOMICS_API_URL, BLOCKONOMICS_API_KEY, or BLOCKONOMICS_MATCH_CALLBACK env vars");
 }
 
 function headers() {
@@ -24,13 +25,14 @@ export async function createPaymentIntent(
     body: JSON.stringify({
       amount,
       currency,
-      match_callback: null,
+      match_callback: MATCH_CALLBACK,
       include_store_settings: true,
     }),
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`createPaymentIntent: ${res.status} ${await res.text()}`);
-  return res.json();
+  const json = await res.json();
+  return json.data ?? json;
 }
 
 export async function createPaymentQuote(
@@ -47,7 +49,8 @@ export async function createPaymentQuote(
     }
   );
   if (!res.ok) throw new Error(`createPaymentQuote: ${res.status} ${await res.text()}`);
-  return res.json();
+  const json = await res.json();
+  return json.data ?? json;
 }
 
 export async function getPaymentIntent(intentId: string): Promise<PaymentIntent> {
@@ -59,7 +62,8 @@ export async function getPaymentIntent(intentId: string): Promise<PaymentIntent>
     }
   );
   if (!res.ok) throw new Error(`getPaymentIntent: ${res.status} ${await res.text()}`);
-  return res.json();
+  const json = await res.json();
+  return json.data ?? json;
 }
 
 export async function refreshPaymentQuote(
@@ -75,5 +79,6 @@ export async function refreshPaymentQuote(
     }
   );
   if (!res.ok) throw new Error(`refreshPaymentQuote: ${res.status} ${await res.text()}`);
-  return res.json();
+  const json = await res.json();
+  return json.data ?? json;
 }

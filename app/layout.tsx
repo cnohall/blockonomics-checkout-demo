@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Blockonomics Checkout Demo",
-  description: "Payment Intents API demo",
+  title: "Daily Grind Coffee",
+  description: "Specialty coffee · Crypto checkout",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-gray-950 text-gray-100 min-h-screen antialiased">
+      <body className="bg-stone-950 text-stone-100 min-h-screen antialiased">
+        <Script
+          src="https://blockonomics.co/js/web3-payment.js"
+          strategy="beforeInteractive"
+        />
         {children}
       </body>
     </html>
