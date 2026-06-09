@@ -150,3 +150,12 @@ body {
   color: var(--text-3);
   font-size: 0.8125rem;
 }
+
+.blockonomics_waiting {
+  color: var(--info-text);
+  background-color: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+}
