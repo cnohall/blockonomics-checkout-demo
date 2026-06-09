@@ -64,3 +64,89 @@ body {
     color: var(--text-2);
   }
 }
+
+/* ── Blockonomics checkout widget ─────────────────────────────────────── */
+.blockonomics_message {
+  background-color: transparent;
+  color: var(--text-1);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 0;
+  border-radius: 0;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+.blockonomics_message--wide {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.blockonomics_payment_layout {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.blockonomics_qr_col img,
+.blockonomics_qr_col canvas {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  background: var(--surface);
+}
+
+.blockonomics_timer_row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.time_remaining {
+  color: var(--warn-text);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.blockonomics_refresh_btn {
+  color: var(--text-3);
+  transition: color 150ms ease;
+  text-decoration: none;
+}
+.blockonomics_refresh_btn:hover {
+  color: var(--accent);
+}
+
+.blockonomics_close {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 1rem;
+}
+.blockonomics_close a {
+  color: var(--text-3);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+.blockonomics_close a:hover {
+  color: var(--text-2);
+}
+
+.blockonomics_error {
+  background-color: var(--err-bg);
+  border: 1px solid var(--err-border);
+  color: var(--err-text);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+}
+
+.blockonomics_loading {
+  color: var(--text-3);
+  font-size: 0.8125rem;
+}

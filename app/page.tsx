@@ -118,62 +118,70 @@ export default function Home() {
           </div>
 
           {/* Currency + pay */}
-          <div className="p-5 space-y-4">
-            {intentId ? (
-              <PaymentClient intentId={intentId} />
-            ) : (
-              <>
-                <div>
-                  <label
-                    className="block text-xs font-medium mb-1.5 uppercase tracking-wider"
-                    style={{ color: "var(--text-3)" }}
-                  >
-                    Currency
-                  </label>
-                  <select
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                    className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
-                    style={{
-                      backgroundColor: "var(--surface-2)",
-                      border: "1px solid var(--border)",
-                      color: "var(--text-1)",
-                    }}
-                  >
-                    <option value="USD">USD — US Dollar</option>
-                    <option value="EUR">EUR — Euro</option>
-                    <option value="GBP">GBP — British Pound</option>
-                  </select>
-                </div>
-
-                {error && (
-                  <div
-                    className="rounded-lg px-3 py-2.5 text-xs font-mono break-all"
-                    style={{
-                      backgroundColor: "var(--err-bg)",
-                      border: "1px solid var(--err-border)",
-                      color: "var(--err-text)",
-                    }}
-                  >
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-accent w-full font-semibold py-3 rounded-xl text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          {!intentId && (
+            <div className="p-5 space-y-4">
+              <div>
+                <label
+                  className="block text-xs font-medium mb-1.5 uppercase tracking-wider"
+                  style={{ color: "var(--text-3)" }}
                 >
-                  {loading ? "Opening checkout…" : "Pay with crypto"}
-                </button>
+                  Currency
+                </label>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                  style={{
+                    backgroundColor: "var(--surface-2)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text-1)",
+                  }}
+                >
+                  <option value="USD">USD — US Dollar</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="GBP">GBP — British Pound</option>
+                </select>
+              </div>
 
-                <p className="text-center text-xs" style={{ color: "var(--text-3)" }}>
-                  Secured by Blockonomics · Bitcoin & USDT accepted
-                </p>
-              </>
-            )}
-          </div>
+              {error && (
+                <div
+                  className="rounded-lg px-3 py-2.5 text-xs font-mono break-all"
+                  style={{
+                    backgroundColor: "var(--err-bg)",
+                    border: "1px solid var(--err-border)",
+                    color: "var(--err-text)",
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-accent w-full font-semibold py-3 rounded-xl text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Opening checkout…" : "Pay with crypto"}
+              </button>
+
+              <p className="text-center text-xs" style={{ color: "var(--text-3)" }}>
+                Secured by Blockonomics · Bitcoin & USDT accepted
+              </p>
+            </div>
+          )}
         </form>
+
+        {intentId && (
+          <div
+            className="rounded-2xl mt-0 overflow-hidden p-5"
+            style={{
+              backgroundColor: "var(--surface)",
+              boxShadow: "0 1px 3px oklch(22% 0.018 55 / 0.07), 0 6px 24px oklch(22% 0.018 55 / 0.05)",
+            }}
+          >
+            <PaymentClient intentId={intentId} />
+          </div>
+        )}
       </div>
     </main>
   );
