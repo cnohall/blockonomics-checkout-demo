@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import PaymentClient from "./checkout/[id]/PaymentClient";
 
 const ITEMS = [
   { name: "Ethiopia Yirgacheffe", qty: 1, price: 1800 },
@@ -9,10 +9,10 @@ const ITEMS = [
 ];
 
 export default function Home() {
-  const router = useRouter();
   const [currency, setCurrency] = useState("USD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [intentId, setIntentId] = useState<string | null>(null);
 
   const subtotal = ITEMS.reduce((s, i) => s + i.price * i.qty, 0);
   const tax = Math.round(subtotal * 0.08);
@@ -30,7 +30,7 @@ export default function Home() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to create payment intent");
-      router.push(`/checkout/${data.id}`);
+      setIntentId(data.id);
     } catch (e) {
       setError(String(e));
       setLoading(false);
@@ -119,53 +119,59 @@ export default function Home() {
 
           {/* Currency + pay */}
           <div className="p-5 space-y-4">
-            <div>
-              <label
-                className="block text-xs font-medium mb-1.5 uppercase tracking-wider"
-                style={{ color: "var(--text-3)" }}
-              >
-                Currency
-              </label>
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
-                style={{
-                  backgroundColor: "var(--surface-2)",
-                  border: "1px solid var(--border)",
-                  color: "var(--text-1)",
-                }}
-              >
-                <option value="USD">USD — US Dollar</option>
-                <option value="EUR">EUR — Euro</option>
-                <option value="GBP">GBP — British Pound</option>
-              </select>
-            </div>
+            {intentId ? (
+              <PaymentClient intentId={intentId} />
+            ) : (
+              <>
+                <div>
+                  <label
+                    className="block text-xs font-medium mb-1.5 uppercase tracking-wider"
+                    style={{ color: "var(--text-3)" }}
+                  >
+                    Currency
+                  </label>
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                    style={{
+                      backgroundColor: "var(--surface-2)",
+                      border: "1px solid var(--border)",
+                      color: "var(--text-1)",
+                    }}
+                  >
+                    <option value="USD">USD — US Dollar</option>
+                    <option value="EUR">EUR — Euro</option>
+                    <option value="GBP">GBP — British Pound</option>
+                  </select>
+                </div>
 
-            {error && (
-              <div
-                className="rounded-lg px-3 py-2.5 text-xs font-mono break-all"
-                style={{
-                  backgroundColor: "var(--err-bg)",
-                  border: "1px solid var(--err-border)",
-                  color: "var(--err-text)",
-                }}
-              >
-                {error}
-              </div>
+                {error && (
+                  <div
+                    className="rounded-lg px-3 py-2.5 text-xs font-mono break-all"
+                    style={{
+                      backgroundColor: "var(--err-bg)",
+                      border: "1px solid var(--err-border)",
+                      color: "var(--err-text)",
+                    }}
+                  >
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-accent w-full font-semibold py-3 rounded-xl text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Opening checkout…" : "Pay with crypto"}
+                </button>
+
+                <p className="text-center text-xs" style={{ color: "var(--text-3)" }}>
+                  Secured by Blockonomics · Bitcoin & USDT accepted
+                </p>
+              </>
             )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-accent w-full font-semibold py-3 rounded-xl text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Opening checkout…" : "Pay with crypto"}
-            </button>
-
-            <p className="text-center text-xs" style={{ color: "var(--text-3)" }}>
-              Secured by Blockonomics · Bitcoin & USDT accepted
-            </p>
           </div>
         </form>
       </div>
