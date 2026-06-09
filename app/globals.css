@@ -73,36 +73,84 @@ body {
   font-size: 0.875rem;
   line-height: 1.5;
   padding: 0;
-  border-radius: 0;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box;
 }
 
-.blockonomics_message--wide {
-  width: 100% !important;
-  max-width: 100% !important;
+/* Bare text labels inside the payment screens */
+.blockonomics_message > div div:not([class]) {
+  color: var(--text-3);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
 }
 
-.blockonomics_payment_layout {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.blockonomics_qr_col img,
-.blockonomics_qr_col canvas {
-  border-radius: 0.75rem;
+/* Address / amount readonly inputs */
+.blockonomics_message input[type="text"] {
+  display: block;
+  width: 100%;
+  background-color: var(--surface-2);
   border: 1px solid var(--border);
-  padding: 0.5rem;
-  background: var(--surface);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-family: 'Jost', monospace;
+  color: var(--text-1);
+  box-sizing: border-box;
+  margin-bottom: 0.75rem;
+  outline: none;
 }
 
-.blockonomics_timer_row {
+/* Crypto selection radio rows */
+.blockonomics_message label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: var(--text-1);
+  font-size: 0.875rem;
+  transition: background-color 120ms ease;
+}
+.blockonomics_message label:hover {
+  background-color: var(--surface-2);
+}
+.blockonomics_message input[type="radio"] {
+  accent-color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+/* Next / action buttons */
+.blockonomics_message button {
+  display: block;
+  width: 100%;
+  background-color: var(--accent);
+  color: var(--accent-fg);
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Jost', system-ui, sans-serif;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+  margin-top: 0.5rem;
+}
+.blockonomics_message button:hover {
+  background-color: var(--accent-h);
+}
+
+/* QR canvas */
+.blockonomics_message canvas {
+  border-radius: 0.625rem;
+  border: 1px solid var(--border);
+  padding: 0.375rem;
+  background: var(--surface);
+  display: block;
+  max-width: 100%;
 }
 
 .time_remaining {
@@ -125,7 +173,8 @@ body {
   padding-top: 0.75rem;
   border-top: 1px solid var(--border);
   display: flex;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.25rem;
 }
 .blockonomics_close a {
   color: var(--text-3);
@@ -149,6 +198,8 @@ body {
 .blockonomics_loading {
   color: var(--text-3);
   font-size: 0.8125rem;
+  text-align: center;
+  padding: 1rem 0;
 }
 
 .blockonomics_waiting {
@@ -158,4 +209,5 @@ body {
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
   font-size: 0.8125rem;
+  text-align: center;
 }
