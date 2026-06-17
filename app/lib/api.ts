@@ -16,7 +16,7 @@ export interface PaymentQuote {
   status: string;
   txid: string | null;
   paid_timestamp: number | null;
-  expires_timestamp: number;
+  expires_timestamp: number | null;
   [key: string]: unknown;
 }
 

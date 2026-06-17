@@ -228,7 +228,9 @@ export default async function IntentDetailPage({ params }: Props) {
                               : "—"}
                           </td>
                           <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
-                            {fmtDate(new Date(q.expires_timestamp * 1000).toISOString())}
+                            {q.expires_timestamp != null
+                              ? fmtDate(new Date(q.expires_timestamp * 1000).toISOString())
+                              : "—"}
                           </td>
                         </tr>
                       ))}
