@@ -15,18 +15,19 @@ export interface PaymentQuote {
   address: string;
   status: string;
   txid: string | null;
-  paid_timestamp: string | null;
+  paid_timestamp: number | null;
+  expires_timestamp: number;
   [key: string]: unknown;
 }
 
 export interface PaymentIntent {
   id: string;
+  store_id: number;
   amount: number;
   currency: string;
   status: string;
-  paid_amount?: number;
-  extra_data?: unknown;
-  created_at?: string;
+  paid_amount: number;
+  extra_data: string | null;
   payment_quotes?: PaymentQuote[];
   [key: string]: unknown;
 }

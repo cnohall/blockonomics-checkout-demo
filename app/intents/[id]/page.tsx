@@ -145,21 +145,14 @@ export default async function IntentDetailPage({ params }: Props) {
               <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
                 <Field label="Status" value={<StatusBadge status={intent.status} />} />
                 <Field label="Amount" value={fmtAmount(intent.amount, intent.currency)} />
-                <Field
-                  label="Paid"
-                  value={
-                    typeof intent.paid_amount === "number"
-                      ? fmtAmount(intent.paid_amount, intent.currency)
-                      : "—"
-                  }
-                />
+                <Field label="Paid" value={fmtAmount(intent.paid_amount, intent.currency)} />
                 <Field label="Currency" value={intent.currency} />
-                <Field label="Created" value={fmtDate(intent.created_at)} />
+                <Field label="Store ID" value={String(intent.store_id)} />
                 <Field
                   label="Extra data"
                   value={
                     intent.extra_data != null
-                      ? <span className="font-mono text-xs break-all">{JSON.stringify(intent.extra_data)}</span>
+                      ? <span className="font-mono text-xs break-all">{intent.extra_data}</span>
                       : "—"
                   }
                 />
@@ -189,7 +182,7 @@ export default async function IntentDetailPage({ params }: Props) {
                   <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
                     <thead>
                       <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                        {["Crypto", "Amount", "Paid", "Address", "Status", "Txid", "Paid at"].map((h) => (
+                        {["Crypto", "Amount", "Paid", "Address", "Status", "Txid", "Paid at", "Expires"].map((h) => (
                           <th
                             key={h}
                             className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap"
@@ -230,7 +223,12 @@ export default async function IntentDetailPage({ params }: Props) {
                             {q.txid ?? "—"}
                           </td>
                           <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
-                            {fmtDate(q.paid_timestamp)}
+                            {q.paid_timestamp != null
+                              ? fmtDate(new Date(q.paid_timestamp * 1000).toISOString())
+                              : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
+                            {fmtDate(new Date(q.expires_timestamp * 1000).toISOString())}
                           </td>
                         </tr>
                       ))}
