@@ -130,8 +130,13 @@ export default async function IntentsPage() {
                       borderBottom: i < intents.length - 1 ? "1px solid var(--border)" : undefined,
                     }}
                   >
-                    <td className="px-4 py-3 font-mono text-xs" style={{ color: "var(--text-2)" }}>
-                      {intent.id}
+                    <td className="px-4 py-3 font-mono text-xs">
+                      <Link
+                        href={`/intents/${intent.id}`}
+                        style={{ color: "var(--accent)" }}
+                      >
+                        {intent.id}
+                      </Link>
                     </td>
                     <td className="px-4 py-3" style={{ color: "var(--text-1)" }}>
                       {fmt(intent.amount, intent.currency)}
