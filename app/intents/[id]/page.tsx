@@ -19,11 +19,11 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
 function StatusBadge({ status }: { status: string }) {
   const s = status.toLowerCase();
   const vars =
-    s === "completed" || s === "paid"
+    s === "completed" || s === "paid" || s === "confirmed"
       ? { bg: "var(--ok-bg)", text: "var(--ok-text)", border: "var(--ok-border)" }
       : s === "expired" || s === "failed"
       ? { bg: "var(--err-bg)", text: "var(--err-text)", border: "var(--err-border)" }
-      : s === "pending"
+      : s === "pending" || s === "unpaid" || s === "underpaid"
       ? { bg: "var(--warn-bg)", text: "var(--warn-text)", border: "var(--warn-border)" }
       : { bg: "var(--info-bg)", text: "var(--info-text)", border: "var(--info-border)" };
 
@@ -37,7 +37,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function fmtDate(iso: string | undefined) {
+function fmtDate(iso: string | null | undefined) {
   if (!iso) return "—";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
@@ -185,53 +185,58 @@ export default async function IntentDetailPage({ params }: Props) {
                   No quotes yet.
                 </p>
               ) : (
-                <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                      {["Crypto", "Amount", "Address", "Status", "Created", "Expires"].map((h) => (
-                        <th
-                          key={h}
-                          className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                          style={{ color: "var(--text-3)" }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {intent.payment_quotes.map((q: PaymentQuote, i: number) => (
-                      <tr
-                        key={q.id}
-                        style={{
-                          borderBottom:
-                            i < (intent.payment_quotes?.length ?? 0) - 1
-                              ? "1px solid var(--border)"
-                              : undefined,
-                        }}
-                      >
-                        <td className="px-4 py-3 font-medium" style={{ color: "var(--text-1)" }}>
-                          {q.crypto}
-                        </td>
-                        <td className="px-4 py-3 font-mono text-xs" style={{ color: "var(--text-1)" }}>
-                          {fmtCryptoAmount(q.amount, q.crypto)}
-                        </td>
-                        <td className="px-4 py-3 font-mono text-xs max-w-[160px] truncate" style={{ color: "var(--text-2)" }} title={q.address}>
-                          {q.address}
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={q.status} />
-                        </td>
-                        <td className="px-4 py-3 text-xs" style={{ color: "var(--text-3)" }}>
-                          {fmtDate(q.created_at)}
-                        </td>
-                        <td className="px-4 py-3 text-xs" style={{ color: "var(--text-3)" }}>
-                          {fmtDate(q.expires_at)}
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                        {["Crypto", "Amount", "Paid", "Address", "Status", "Txid", "Paid at"].map((h) => (
+                          <th
+                            key={h}
+                            className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap"
+                            style={{ color: "var(--text-3)" }}
+                          >
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {intent.payment_quotes.map((q: PaymentQuote, i: number) => (
+                        <tr
+                          key={q.id}
+                          style={{
+                            borderBottom:
+                              i < (intent.payment_quotes?.length ?? 0) - 1
+                                ? "1px solid var(--border)"
+                                : undefined,
+                          }}
+                        >
+                          <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "var(--text-1)" }}>
+                            {q.crypto}
+                          </td>
+                          <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "var(--text-1)" }}>
+                            {fmtCryptoAmount(q.amount, q.crypto)}
+                          </td>
+                          <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "var(--text-2)" }}>
+                            {fmtCryptoAmount(q.paid_amount, q.crypto)}
+                          </td>
+                          <td className="px-4 py-3 font-mono text-xs" style={{ color: "var(--text-2)", maxWidth: "140px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={q.address}>
+                            {q.address}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <StatusBadge status={q.status} />
+                          </td>
+                          <td className="px-4 py-3 font-mono text-xs" style={{ color: "var(--text-2)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={q.txid ?? undefined}>
+                            {q.txid ?? "—"}
+                          </td>
+                          <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
+                            {fmtDate(q.paid_timestamp)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </>

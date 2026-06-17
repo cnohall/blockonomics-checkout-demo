@@ -6,11 +6,11 @@ export const dynamic = "force-dynamic";
 function StatusBadge({ status }: { status: string }) {
   const s = status.toLowerCase();
   const vars =
-    s === "completed" || s === "paid"
+    s === "completed" || s === "paid" || s === "confirmed"
       ? { bg: "var(--ok-bg)", text: "var(--ok-text)", border: "var(--ok-border)" }
       : s === "expired" || s === "failed"
       ? { bg: "var(--err-bg)", text: "var(--err-text)", border: "var(--err-border)" }
-      : s === "pending"
+      : s === "pending" || s === "unpaid" || s === "underpaid"
       ? { bg: "var(--warn-bg)", text: "var(--warn-text)", border: "var(--warn-border)" }
       : { bg: "var(--info-bg)", text: "var(--info-text)", border: "var(--info-border)" };
 
@@ -145,12 +145,14 @@ export default async function IntentsPage() {
                       <StatusBadge status={intent.status} />
                     </td>
                     <td className="px-4 py-3 text-xs" style={{ color: "var(--text-3)" }}>
-                      {new Date(intent.created_at).toLocaleString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {intent.created_at
+                        ? new Date(intent.created_at).toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "—"}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link

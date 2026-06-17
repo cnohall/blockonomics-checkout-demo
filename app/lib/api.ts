@@ -8,12 +8,14 @@ if (!BASE_URL || !API_KEY || !MATCH_CALLBACK) {
 
 export interface PaymentQuote {
   id: string;
+  payment_intent_id: string;
   crypto: string;
   amount: number;
+  paid_amount: number;
   address: string;
   status: string;
-  created_at: string;
-  expires_at?: string;
+  txid: string | null;
+  paid_timestamp: string | null;
   [key: string]: unknown;
 }
 
@@ -24,7 +26,7 @@ export interface PaymentIntent {
   status: string;
   paid_amount?: number;
   extra_data?: unknown;
-  created_at: string;
+  created_at?: string;
   payment_quotes?: PaymentQuote[];
   [key: string]: unknown;
 }
