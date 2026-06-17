@@ -66,6 +66,35 @@ body {
 }
 
 /* ── Blockonomics checkout widget ─────────────────────────────────────── */
+
+/* checkout.js injects inline styles on #payment-container — strip them all */
+#payment-container {
+  width: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin-top: 0 !important;
+  box-sizing: border-box !important;
+  min-height: 12rem;
+}
+
+/* Custom elements default to display:inline — make them block so
+   percentage widths resolve against the card, not the viewport */
+blockonomics-checkout,
+blockonomics-checkout-usdt-payment-screen {
+  display: block;
+  width: 100%;
+}
+
+/* web3-payment Shadow DOM widget: force it to fill available width.
+   --apkt-modal-width is read inside the shadow root for QR/content sizing. */
+web3-payment {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  --apkt-modal-width: 100%;
+}
+
 .blockonomics_message {
   background-color: transparent;
   color: var(--text-1);

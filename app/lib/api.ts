@@ -6,6 +6,25 @@ if (!BASE_URL || !API_KEY || !MATCH_CALLBACK) {
   throw new Error("Missing BLOCKONOMICS_API_URL, BLOCKONOMICS_API_KEY, or BLOCKONOMICS_MATCH_CALLBACK env vars");
 }
 
+export interface PaymentIntent {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  created_at: string;
+  [key: string]: unknown;
+}
+
+export async function getPaymentIntents(): Promise<PaymentIntent[]> {
+  const res = await fetch(`${BASE_URL}/api/v2/payment_intents`, {
+    headers: { Authorization: `Bearer ${API_KEY}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`getPaymentIntents: ${res.status} ${await res.text()}`);
+  const json = await res.json();
+  return json.data ?? [];
+}
+
 export async function createPaymentIntent(
   amount: number,
   currency: string

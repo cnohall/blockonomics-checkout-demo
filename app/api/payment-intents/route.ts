@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPaymentIntent } from "@/app/lib/api";
+import { createPaymentIntent, getPaymentIntents } from "@/app/lib/api";
+
+export async function GET() {
+  try {
+    const intents = await getPaymentIntents();
+    return NextResponse.json(intents);
+  } catch (e) {
+    return NextResponse.json({ error: String(e) }, { status: 500 });
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
