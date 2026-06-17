@@ -111,7 +111,7 @@ export default async function IntentsPage() {
             <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                  {["ID", "Amount", "Status", "Created", ""].map((h) => (
+                  {["ID", "Amount", "Status", ""].map((h) => (
                     <th
                       key={h}
                       className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -144,28 +144,26 @@ export default async function IntentsPage() {
                     <td className="px-4 py-3">
                       <StatusBadge status={intent.status} />
                     </td>
-                    <td className="px-4 py-3 text-xs" style={{ color: "var(--text-3)" }}>
-                      {intent.created_at
-                        ? new Date(intent.created_at).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "—"}
-                    </td>
                     <td className="px-4 py-3 text-right">
-                      <Link
-                        href={`/checkout/${intent.id}`}
-                        className="text-xs px-2.5 py-1 rounded-md"
-                        style={{
-                          backgroundColor: "var(--surface-2)",
-                          border: "1px solid var(--border)",
-                          color: "var(--text-2)",
-                        }}
-                      >
-                        Open
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/intents/${intent.id}`}
+                          className="text-xs px-2.5 py-1 rounded-md"
+                          style={{
+                            backgroundColor: "var(--surface-2)",
+                            border: "1px solid var(--border)",
+                            color: "var(--text-2)",
+                          }}
+                        >
+                          Details
+                        </Link>
+                        <Link
+                          href={`/checkout/${intent.id}`}
+                          className="text-xs px-2.5 py-1 rounded-md btn-accent"
+                        >
+                          Open
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}
