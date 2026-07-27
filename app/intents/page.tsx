@@ -111,7 +111,7 @@ export default async function IntentsPage() {
             <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                  {["ID", "Amount", "Status", ""].map((h) => (
+                  {["ID", "Store", "Amount", "Status", ""].map((h) => (
                     <th
                       key={h}
                       className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -137,6 +137,11 @@ export default async function IntentsPage() {
                       >
                         {intent.id}
                       </Link>
+                    </td>
+                    {/* Merchant-authed view only — store_id is redacted on the
+                        public checkout endpoint, and older API builds omit it. */}
+                    <td className="px-4 py-3 font-mono text-xs" style={{ color: "var(--text-3)" }}>
+                      {intent.store_id ?? "—"}
                     </td>
                     <td className="px-4 py-3" style={{ color: "var(--text-1)" }}>
                       {fmt(intent.amount, intent.currency)}
