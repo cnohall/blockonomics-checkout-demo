@@ -86,6 +86,14 @@ blockonomics-checkout-usdt-payment-screen {
   width: 100%;
 }
 
+/* checkout.js injects its stylesheet into <head> at runtime, so its own
+   `blockonomics-checkout { width: var(--bk-width) }` (same 0,0,1 specificity)
+   lands after globals.css and wins on document order. Set the documented token
+   instead of fighting it — id + type is (1,0,1), so no !important needed. */
+#payment-container blockonomics-checkout {
+  --bk-width: 100%;
+}
+
 /* web3-payment Shadow DOM widget: force it to fill available width.
    --apkt-modal-width is read inside the shadow root for QR/content sizing. */
 web3-payment {
@@ -95,8 +103,13 @@ web3-payment {
   --apkt-modal-width: 100%;
 }
 
+/* Same runtime-injection problem: the widget's own .blockonomics_message rule
+   (white bg + 1px border) ties on specificity and wins on order, so the card
+   frame has to be forced off here. */
 .blockonomics_message {
-  background-color: transparent;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
   color: var(--text-1);
   font-family: 'Jost', system-ui, sans-serif;
   font-size: 0.875rem;
