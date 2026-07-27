@@ -75,6 +75,12 @@ body {
   padding: 0 !important;
   margin-top: 0 !important;
   box-sizing: border-box !important;
+}
+
+/* Reserve space only while the widget is booting — once Lit appends
+   <blockonomics-checkout> the container sizes to its actual screen, so short
+   states (success, error) don't sit on a 12rem floor of dead space. */
+#payment-container:empty {
   min-height: 12rem;
 }
 
