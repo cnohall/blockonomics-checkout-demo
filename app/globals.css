@@ -98,6 +98,16 @@ blockonomics-checkout-usdt-payment-screen {
    instead of fighting it — id + type is (1,0,1), so no !important needed. */
 #payment-container blockonomics-checkout {
   --bk-width: 100%;
+  /* Theme the widget through the tokens it exposes rather than restyling its
+     internals - internal class names are private and collide on every update. */
+  --bk-font: 'Jost', system-ui, sans-serif;
+  --bk-bg: var(--surface-2);
+  --bk-fg: var(--text-1);
+  --bk-muted: var(--text-3);
+  --bk-accent: var(--accent);
+  --bk-accent-fg: var(--accent-fg);
+  --bk-border: var(--border);
+  --bk-radius: 0.5rem;
 }
 
 /* web3-payment Shadow DOM widget: force it to fill available width.
@@ -145,7 +155,6 @@ web3-payment {
   font-family: 'Jost', monospace;
   color: var(--text-1);
   box-sizing: border-box;
-  margin-bottom: 0.75rem;
   outline: none;
 }
 
@@ -171,8 +180,10 @@ web3-payment {
   cursor: pointer;
 }
 
-/* Next / action buttons */
-.blockonomics_message button {
+/* Next button on the crypto-selection screen. It ships without a class, so it
+   has nothing but this rule. Buttons that do carry a class (copy, pay-remaining,
+   retry) style themselves from --bk-* and must not be caught here. */
+.blockonomics_message button:not([class]) {
   display: block;
   width: 100%;
   background-color: var(--accent);
@@ -187,7 +198,7 @@ web3-payment {
   transition: background-color 150ms ease;
   margin-top: 0.5rem;
 }
-.blockonomics_message button:hover {
+.blockonomics_message button:not([class]):hover {
   background-color: var(--accent-h);
 }
 
