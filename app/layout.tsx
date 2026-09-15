@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen antialiased">
         <Script
-          src="https://testblockonomics.com/js/checkout.js"
+          src="https://stagingtest.blockonomics.co/js/checkout.js"
           strategy="beforeInteractive"
         />
         {children}
