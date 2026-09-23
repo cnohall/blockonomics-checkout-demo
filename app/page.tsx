@@ -186,7 +186,13 @@ export default function Home() {
               boxShadow: "0 1px 3px oklch(22% 0.018 55 / 0.07), 0 6px 24px oklch(22% 0.018 55 / 0.05)",
             }}
           >
-            <PaymentClient intentId={intentId} />
+            <PaymentClient
+              intentId={intentId}
+              onClose={() => {
+                setIntentId(null);
+                setLoading(false);
+              }}
+            />
           </div>
         )}
       </div>

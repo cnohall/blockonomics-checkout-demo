@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- Isolation test: loads ONLY web3-payment.js (no checkout.js, no globals.css)
+     to check whether the stepper gap comes from the widget itself. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>web3-payment isolation</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; background: #fff; }
+    .label { font: 12px monospace; color: #c00; margin-top: 16px; }
+    .frame { outline: 1px dashed #c00; }
+  </style>
+  <script src="https://stagingtest.blockonomics.co/js/web3-payment.js"></script>
+</head>
+<body>
+  <p>Bare <code>&lt;web3-payment&gt;</code> at fixed widths. Dashed box = container.</p>
+  <div id="list"></div>
+  <script>
+    const ADDR = "0x000000000000000000000000000000000000dEaD";
+    const list = document.getElementById("list");
+    for (const w of [300, 340, 360, 400, 500]) {
+      list.insertAdjacentHTML("beforeend",
+        `<div class="label">${w}px</div>
+         <div class="frame" style="width:${w}px">
+           <web3-payment order_amount="1" receive_address="${ADDR}"></web3-payment>
+         </div>`);
+    }
+  </script>
+</body>
+</html>
