@@ -24,11 +24,11 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function fmt(cents: number, currency: string) {
+function fmt(amount: string, currency: string) {
   try {
-    return (cents / 100).toLocaleString("en-US", { style: "currency", currency });
+    return Number(amount).toLocaleString("en-US", { style: "currency", currency });
   } catch {
-    return `${currency} ${(cents / 100).toFixed(2)}`;
+    return `${currency} ${Number(amount).toFixed(2)}`;
   }
 }
 

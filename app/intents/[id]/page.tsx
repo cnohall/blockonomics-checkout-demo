@@ -47,15 +47,16 @@ function fmtDate(iso: string | null | undefined) {
   });
 }
 
-function fmtAmount(cents: number, currency: string) {
+function fmtAmount(amount: string, currency: string) {
   try {
-    return (cents / 100).toLocaleString("en-US", { style: "currency", currency });
+    return Number(amount).toLocaleString("en-US", { style: "currency", currency });
   } catch {
-    return `${currency} ${(cents / 100).toFixed(2)}`;
+    return `${currency} ${Number(amount).toFixed(2)}`;
   }
 }
 
-function fmtCryptoAmount(amount: number, crypto: string) {
+function fmtCryptoAmount(units: string, crypto: string) {
+  const amount = Number(units);
   if (crypto === "BTC") return `${(amount / 1e8).toFixed(8)} BTC`;
   if (crypto === "USDT") return `${(amount / 1e6).toFixed(6)} USDT`;
   return `${amount} ${crypto}`;
@@ -145,7 +146,7 @@ export default async function IntentDetailPage({ params }: Props) {
               <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
                 <Field label="Status" value={<StatusBadge status={intent.status} />} />
                 <Field label="Amount" value={fmtAmount(intent.amount, intent.currency)} />
-                <Field label="Paid" value={fmtAmount(intent.paid_amount, intent.currency)} />
+                <Field label="Due" value={fmtAmount(intent.due_amount, intent.currency)} />
                 <Field label="Currency" value={intent.currency} />
                 <Field label="Store ID" value={String(intent.store_id)} />
                 <Field
@@ -173,7 +174,7 @@ export default async function IntentDetailPage({ params }: Props) {
                 </h2>
               </div>
 
-              {!intent.payment_quotes?.length ? (
+              {!intent.payments?.length ? (
                 <p className="px-5 py-6 text-sm text-center" style={{ color: "var(--text-3)" }}>
                   No quotes yet.
                 </p>
@@ -194,12 +195,12 @@ export default async function IntentDetailPage({ params }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {intent.payment_quotes.map((q: PaymentQuote, i: number) => (
+                      {intent.payments.map((q: PaymentQuote, i: number) => (
                         <tr
                           key={q.id}
                           style={{
                             borderBottom:
-                              i < (intent.payment_quotes?.length ?? 0) - 1
+                              i < (intent.payments?.length ?? 0) - 1
                                 ? "1px solid var(--border)"
                                 : undefined,
                           }}
@@ -208,10 +209,10 @@ export default async function IntentDetailPage({ params }: Props) {
                             {q.crypto}
                           </td>
                           <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "var(--text-1)" }}>
-                            {fmtCryptoAmount(q.amount, q.crypto)}
+                            {fmtCryptoAmount(q.crypto_amount, q.crypto)}
                           </td>
                           <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "var(--text-2)" }}>
-                            {fmtCryptoAmount(q.paid_amount, q.crypto)}
+                            {fmtCryptoAmount(q.paid_crypto_amount, q.crypto)}
                           </td>
                           <td className="px-4 py-3 font-mono text-xs" style={{ color: "var(--text-2)", maxWidth: "140px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={q.address}>
                             {q.address}

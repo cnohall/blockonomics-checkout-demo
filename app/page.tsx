@@ -27,7 +27,8 @@ export default function Home() {
       const res = await fetch("/api/payment-intents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: total, currency }),
+        // API takes major units as a string, e.g. "33.48"
+        body: JSON.stringify({ amount: (total / 100).toFixed(2), currency }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to create payment intent");

@@ -8,10 +8,11 @@ if (!BASE_URL || !API_KEY || !MATCH_CALLBACK) {
 
 export interface PaymentQuote {
   id: string;
-  payment_intent_id: string;
   crypto: string;
-  amount: number;
-  paid_amount: number;
+  amount: string;
+  // Base units as strings, so wei amounts keep precision
+  crypto_amount: string;
+  paid_crypto_amount: string;
   address: string;
   status: string;
   txid: string | null;
@@ -23,12 +24,13 @@ export interface PaymentQuote {
 export interface PaymentIntent {
   id: string;
   store_id: number;
-  amount: number;
+  amount: string;
   currency: string;
   status: string;
-  paid_amount: number;
+  due_amount: string;
   extra_data: string | null;
-  payment_quotes?: PaymentQuote[];
+  created_at: number;
+  payments?: PaymentQuote[];
   [key: string]: unknown;
 }
 
@@ -53,7 +55,7 @@ export async function getPaymentIntent(id: string): Promise<PaymentIntent> {
 }
 
 export async function createPaymentIntent(
-  amount: number,
+  amount: string,
   currency: string
 ): Promise<{ id: string }> {
   const res = await fetch(`${BASE_URL}/api/v2/payment_intents`, {
