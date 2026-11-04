@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getPaymentIntent, PaymentQuote } from "@/app/lib/api";
+import { getPaymentIntent, getPaymentQuotes, PaymentIntent, PaymentQuote } from "@/app/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -67,11 +67,20 @@ interface Props {
 }
 
 export default async function IntentDetailPage({ params }: Props) {
-  let intent = null;
+  let intent: PaymentIntent | null = null;
+  let quotes: PaymentQuote[] = [];
+  let quotesError: string | null = null;
   let fetchError: string | null = null;
 
   try {
-    intent = await getPaymentIntent(params.id);
+    // Quotes failing shouldn't hide the intent itself
+    [intent, quotes] = await Promise.all([
+      getPaymentIntent(params.id),
+      getPaymentQuotes(params.id).catch((e) => {
+        quotesError = String(e);
+        return [];
+      }),
+    ]);
   } catch (e) {
     fetchError = String(e);
   }
@@ -174,9 +183,9 @@ export default async function IntentDetailPage({ params }: Props) {
                 </h2>
               </div>
 
-              {!intent.payments?.length ? (
+              {!quotes.length ? (
                 <p className="px-5 py-6 text-sm text-center" style={{ color: "var(--text-3)" }}>
-                  No quotes yet.
+                  {quotesError ? "Couldn't load quotes." : "No quotes yet."}
                 </p>
               ) : (
                 <div className="overflow-x-auto">
@@ -195,12 +204,12 @@ export default async function IntentDetailPage({ params }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {intent.payments.map((q: PaymentQuote, i: number) => (
+                      {quotes.map((q: PaymentQuote, i: number) => (
                         <tr
                           key={q.id}
                           style={{
                             borderBottom:
-                              i < (intent.payments?.length ?? 0) - 1
+                              i < quotes.length - 1
                                 ? "1px solid var(--border)"
                                 : undefined,
                           }}

@@ -30,7 +30,6 @@ export interface PaymentIntent {
   due_amount: string;
   extra_data: string | null;
   created_at: number;
-  payments?: PaymentQuote[];
   [key: string]: unknown;
 }
 
@@ -52,6 +51,18 @@ export async function getPaymentIntent(id: string): Promise<PaymentIntent> {
   if (!res.ok) throw new Error(`getPaymentIntent: ${res.status} ${await res.text()}`);
   const json = await res.json();
   return json.data ?? json;
+}
+
+export type QuoteFilter = "paid" | "unpaid" | "all";
+
+export async function getPaymentQuotes(intentId: string, filter: QuoteFilter = "all"): Promise<PaymentQuote[]> {
+  const res = await fetch(`${BASE_URL}/api/v2/payment_intents/${intentId}/payment_quotes?filter=${filter}`, {
+    headers: { Authorization: `Bearer ${API_KEY}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`getPaymentQuotes: ${res.status} ${await res.text()}`);
+  const json = await res.json();
+  return json.data ?? [];
 }
 
 export async function createPaymentIntent(
